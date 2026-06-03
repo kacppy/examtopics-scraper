@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS EXAM</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      borderRadius: {
+        'shadcn': 'var(--radius)',
+      },
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        card: 'var(--card)',
+        'card-foreground': 'var(--card-foreground)',
+        popover: 'var(--popover)',
+        'popover-foreground': 'var(--popover-foreground)',
+        primary: 'var(--primary)',
+        'primary-foreground': 'var(--primary-foreground)',
+        secondary: 'var(--secondary)',
+        'secondary-foreground': 'var(--secondary-foreground)',
+        muted: 'var(--muted)',
+        'muted-foreground': 'var(--muted-foreground)',
+        accent: 'var(--accent)',
+        'accent-foreground': 'var(--accent-foreground)',
+        destructive: 'var(--destructive)',
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
+      },
+    }
+  }
+}
+</script>
+<style>
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.148 0.004 228.8);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.148 0.004 228.8);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.148 0.004 228.8);
+  --primary: oklch(0.508 0.118 165.612);
+  --primary-foreground: oklch(0.979 0.021 166.113);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.963 0.002 197.1);
+  --muted-foreground: oklch(0.56 0.021 213.5);
+  --accent: oklch(0.963 0.002 197.1);
+  --accent-foreground: oklch(0.218 0.008 223.9);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.925 0.005 214.3);
+  --input: oklch(0.925 0.005 214.3);
+  --ring: oklch(0.723 0.014 214.4);
+  --chart-1: oklch(0.845 0.143 164.978);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.596 0.145 163.225);
+  --chart-4: oklch(0.508 0.118 165.612);
+  --chart-5: oklch(0.432 0.095 166.913);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.148 0.004 228.8);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.218 0.008 223.9);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --popover: oklch(0.218 0.008 223.9);
+  --popover-foreground: oklch(0.987 0.002 197.1);
+  --primary: oklch(0.432 0.095 166.913);
+  --primary-foreground: oklch(0.979 0.021 166.113);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.275 0.011 216.9);
+  --muted-foreground: oklch(0.723 0.014 214.4);
+  --accent: oklch(0.275 0.011 216.9);
+  --accent-foreground: oklch(0.987 0.002 197.1);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.56 0.021 213.5);
+  --chart-1: oklch(0.845 0.143 164.978);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.596 0.145 163.225);
+  --chart-4: oklch(0.508 0.118 165.612);
+  --chart-5: oklch(0.432 0.095 166.913);
+}
+
+* { border-color: var(--border); }
+body { background-color: var(--background); color: var(--foreground); }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease-out;
+}
+.modal-content {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  max-width: 600px; width: 90vw;
+  max-height: 80vh; overflow-y: auto;
+  animation: scaleIn 0.15s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* ===== Zoom modal ===== */
+.zoom-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease-out;
+}
+.zoom-overlay img {
+  max-width: 90vw; max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+  cursor: zoom-out;
+}
+
+/* ===== Question cards ===== */
+.question-card { transition: opacity 0.2s, transform 0.2s; }
+.question-card.hidden-by-search { display: none; }
+
+/* ===== Answer radio ===== */
+.answer-radio input[type="radio"] {
+  appearance: none; -webkit-appearance: none;
+  width: 1rem; height: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: grid; place-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+.answer-radio input[type="radio"]::before {
+  content: ""; width: 0.5rem; height: 0.5rem;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.12s ease;
+  background: var(--primary);
+}
+.answer-radio input[type="radio"]:checked::before { transform: scale(1); }
+.answer-radio input[type="radio"]:checked { border-color: var(--primary); }
+.answer-radio input[type="radio"]:focus-visible {
+  outline: 2px solid var(--ring); outline-offset: 2px;
+}
+.answer-radio input[type="radio"]:disabled { cursor: not-allowed; }
+
+/* ===== Answer feedback classes (applied by JS) ===== */
+.answer-radio.answer-correct {
+  border-color: var(--primary) !important;
+  background: color-mix(in oklch, var(--primary) 15%, transparent) !important;
+}
+.answer-radio.answer-incorrect {
+  border-color: var(--destructive) !important;
+  background: color-mix(in oklch, var(--destructive) 15%, transparent) !important;
+}
+.answer-radio.answer-dimmed { opacity: 0.4; }
+
+/* ===== Image zoom cursor ===== */
+.question-image {
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+.question-image:hover { transform: scale(1.02); }
+
+/* ===== Shake animation ===== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+.shake { animation: shake 0.4s ease; }
+
+/* ===== Peek button disabled state ===== */
+.peek-btn.peeked {
+  opacity: 0.4; pointer-events: none;
+}
+
+/* ===== Sticky navbar ===== */
+#navbar {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+}
+
+/* ===== Progress bar ===== */
+#progressFill { transition: width 0.4s ease; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--muted-foreground); border-radius: 3px; }
+</style>
+</head>
+<body class="min-h-screen pb-14">
+
+<!-- ===== STICKY NAVBAR ===== -->
+<div id="navbar">
+  <div class="max-w-3xl mx-auto px-4">
+    <!-- Row 1: title + dark toggle + reset -->
+    <div class="flex items-center justify-between gap-3 mb-3">
+      <h1 class="text-lg font-bold tracking-tight text-[var(--foreground)]">AWS EXAM</h1>
+      <div class="flex items-center gap-2">
+        <button id="darkToggle" class="inline-flex items-center justify-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-9 w-9 text-sm font-medium hover:bg-[var(--accent)] transition-colors" title="Toggle theme">
+          <svg id="darkIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button id="resetAllBtn" class="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-9 px-3 text-sm font-medium hover:bg-[var(--accent)] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 2: progress bar -->
+    <div class="flex items-center gap-3 mb-3">
+      <div class="h-2 flex-1 rounded-full bg-[var(--secondary)] overflow-hidden">
+        <div id="progressFill" class="h-full rounded-full bg-[var(--primary)]" style="width: 0%"></div>
+      </div>
+      <span id="progressText" class="text-xs font-medium text-[var(--muted-foreground)] whitespace-nowrap tabular-nums">0 / 3</span>
+    </div>
+
+    <!-- Row 3: search -->
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search questions..."
+        class="flex h-10 w-full rounded-[var(--radius)] border border-[var(--input)] bg-background pl-10 pr-3 py-2 text-sm ring-offset-background placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
+      >
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="max-w-3xl mx-auto px-4 pt-6 space-y-4">
+
+  <div id="questionList" class="space-y-4">
+
+    <!-- Question 1 -->
+    <div id="questionCard1" class="question-card rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm" data-question="1">
+      <div class="p-5 space-y-4">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="inline-flex items-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)] px-2.5 py-0.5 text-xs font-semibold">Question 1</span>
+              <span class="q-result-badge hidden text-xs font-semibold px-2.5 py-0.5 rounded-[var(--radius)]" data-question="1"></span>
+            </div>
+            <p class="mt-2 text-sm font-medium leading-relaxed">Which AWS service allows you to run code without managing servers and automatically scales in response to events?</p>
+          </div>
+          <button class="reset-question-btn inline-flex items-center justify-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 w-8 text-sm hover:bg-[var(--accent)] transition-colors flex-shrink-0" title="Reset question" data-question="1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          </button>
+        </div>
+
+        <img src="https://picsum.photos/seed/aws1/600/240" alt="AWS diagram"
+          class="question-image w-full rounded-[var(--radius)] border border-[var(--border)] object-cover max-h-60"
+          data-full="https://picsum.photos/seed/aws1/1200/800">
+
+        <div class="space-y-2.5">
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="1" data-answer="a">
+            <input type="radio" name="q1" value="a" class="peer">
+            <span class="text-sm font-medium">A.</span><span class="text-sm">Amazon EC2</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="1" data-answer="b">
+            <input type="radio" name="q1" value="b" class="peer">
+            <span class="text-sm font-medium">B.</span><span class="text-sm">AWS Lambda</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="1" data-answer="c">
+            <input type="radio" name="q1" value="c" class="peer">
+            <span class="text-sm font-medium">C.</span><span class="text-sm">Amazon S3</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="1" data-answer="d">
+            <input type="radio" name="q1" value="d" class="peer">
+            <span class="text-sm font-medium">D.</span><span class="text-sm">Amazon RDS</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="peek-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] transition-colors" data-question="1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Peek
+          </button>
+          <button class="comment-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-question="1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Comments
+          </button>
+          <button class="source-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-url="https://docs.aws.amazon.com/lambda/">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Source
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div id="questionCard2" class="question-card rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm" data-question="2">
+      <div class="p-5 space-y-4">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="inline-flex items-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)] px-2.5 py-0.5 text-xs font-semibold">Question 2</span>
+              <span class="q-result-badge hidden text-xs font-semibold px-2.5 py-0.5 rounded-[var(--radius)]" data-question="2"></span>
+            </div>
+            <p class="mt-2 text-sm font-medium leading-relaxed">Which AWS tool is used to manage user permissions and roles in the AWS cloud?</p>
+          </div>
+          <button class="reset-question-btn inline-flex items-center justify-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 w-8 text-sm hover:bg-[var(--accent)] transition-colors flex-shrink-0" title="Reset question" data-question="2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          </button>
+        </div>
+
+        <img src="https://picsum.photos/seed/aws2/600/240" alt="AWS IAM diagram"
+          class="question-image w-full rounded-[var(--radius)] border border-[var(--border)] object-cover max-h-60"
+          data-full="https://picsum.photos/seed/aws2/1200/800">
+
+        <div class="space-y-2.5">
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="2" data-answer="a">
+            <input type="radio" name="q2" value="a" class="peer">
+            <span class="text-sm font-medium">A.</span><span class="text-sm">AWS WAF</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="2" data-answer="b">
+            <input type="radio" name="q2" value="b" class="peer">
+            <span class="text-sm font-medium">B.</span><span class="text-sm">AWS Shield</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="2" data-answer="c">
+            <input type="radio" name="q2" value="c" class="peer">
+            <span class="text-sm font-medium">C.</span><span class="text-sm">AWS IAM</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="2" data-answer="d">
+            <input type="radio" name="q2" value="d" class="peer">
+            <span class="text-sm font-medium">D.</span><span class="text-sm">AWS KMS</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="peek-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] transition-colors" data-question="2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Peek
+          </button>
+          <button class="comment-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-question="2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Comments
+          </button>
+          <button class="source-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-url="https://docs.aws.amazon.com/iam/">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Source
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question 3 -->
+    <div id="questionCard3" class="question-card rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm" data-question="3">
+      <div class="p-5 space-y-4">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="inline-flex items-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)] px-2.5 py-0.5 text-xs font-semibold">Question 3</span>
+              <span class="q-result-badge hidden text-xs font-semibold px-2.5 py-0.5 rounded-[var(--radius)]" data-question="3"></span>
+            </div>
+            <p class="mt-2 text-sm font-medium leading-relaxed">Which AWS service provides highly durable and available object storage, ideal for storing backups and static files?</p>
+          </div>
+          <button class="reset-question-btn inline-flex items-center justify-center rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 w-8 text-sm hover:bg-[var(--accent)] transition-colors flex-shrink-0" title="Reset question" data-question="3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          </button>
+        </div>
+
+        <img src="https://picsum.photos/seed/aws3/600/240" alt="AWS S3 diagram"
+          class="question-image w-full rounded-[var(--radius)] border border-[var(--border)] object-cover max-h-60"
+          data-full="https://picsum.photos/seed/aws3/1200/800">
+
+        <div class="space-y-2.5">
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="3" data-answer="a">
+            <input type="radio" name="q3" value="a" class="peer">
+            <span class="text-sm font-medium">A.</span><span class="text-sm">Amazon EBS</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="3" data-answer="b">
+            <input type="radio" name="q3" value="b" class="peer">
+            <span class="text-sm font-medium">B.</span><span class="text-sm">Amazon S3</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="3" data-answer="c">
+            <input type="radio" name="q3" value="c" class="peer">
+            <span class="text-sm font-medium">C.</span><span class="text-sm">Amazon EFS</span>
+          </label>
+          <label class="answer-radio flex items-center gap-3 rounded-[var(--radius)] border border-[var(--border)] px-4 py-3 cursor-pointer hover:bg-[var(--accent)]/50 transition-colors has-[:checked]:border-[var(--primary)] has-[:checked]:bg-[var(--primary)]/10" data-question="3" data-answer="d">
+            <input type="radio" name="q3" value="d" class="peer">
+            <span class="text-sm font-medium">D.</span><span class="text-sm">Amazon DynamoDB</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="peek-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] transition-colors" data-question="3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Peek
+          </button>
+          <button class="comment-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-question="3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Comments
+          </button>
+          <button class="source-btn inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-transparent text-[var(--muted-foreground)] h-8 px-3 text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" data-url="https://docs.aws.amazon.com/s3/">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Source
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="flex justify-center pt-2 pb-10">
+    <button id="submitBtn" class="inline-flex items-center gap-2 rounded-[var(--radius)] bg-[var(--primary)] text-[var(--primary-foreground)] h-11 px-8 text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Submit
+    </button>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--border)] bg-[var(--background)]">
+  <div class="max-w-3xl mx-auto px-4 h-12 flex items-center justify-center gap-2">
+    <span class="text-xs text-[var(--muted-foreground)]">Built by</span>
+    <a href="https://github.com/kacppy" target="_blank" rel="noopener noreferrer"
+       class="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      kacppy
+    </a>
+  </div>
+</footer>
+
+<!-- ===== COMMENTS MODAL ===== -->
+<div id="commentsModal" class="modal-overlay hidden">
+  <div class="modal-content p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="commentsModalTitle" class="text-sm font-semibold">Comments &ndash; Question 1</h3>
+      <button id="closeCommentsModal" class="inline-flex items-center justify-center rounded-[var(--radius)] h-8 w-8 hover:bg-[var(--accent)] transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="commentsList" class="space-y-3 max-h-64 overflow-y-auto"></div>
+  </div>
+</div>
+
+<!-- ===== RESULT MODAL ===== -->
+<div id="resultModal" class="modal-overlay hidden">
+  <div class="modal-content p-6 text-center relative" style="max-width: 360px;">
+    <button id="closeResultModal" class="absolute top-3 right-3 inline-flex items-center justify-center rounded-[var(--radius)] h-8 w-8 hover:bg-[var(--accent)] transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 class="text-sm font-semibold mb-4">Exam result</h3>
+    <div id="resultPercentage" class="text-5xl font-bold text-[var(--primary)] mb-1">0%</div>
+    <div id="resultFraction" class="text-sm text-[var(--muted-foreground)]">0 / 3</div>
+  </div>
+</div>
+
+<!-- ===== IMAGE ZOOM MODAL ===== -->
+<div id="zoomModal" class="zoom-overlay hidden">
+  <button id="closeZoomModal" class="absolute top-4 right-4 inline-flex items-center justify-center rounded-full bg-black/50 text-white h-10 w-10 hover:bg-black/70 transition-colors z-10">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <img id="zoomImage" src="" alt="Zoom">
+</div>
+
+<script>
+(function() {
+
+  // ========================= DARK MODE =========================
+  var html = document.documentElement;
+  var darkToggle = document.getElementById('darkToggle');
+  var darkIcon = document.getElementById('darkIcon');
+  var moonIcon = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+  var sunIcon = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+
+  function setDark(on) {
+    html.classList.toggle('dark', on);
+    darkIcon.innerHTML = on ? sunIcon : moonIcon;
+    try { localStorage.setItem('exam-dark', on ? '1' : '0'); } catch(e) {}
+  }
+  var saved = localStorage.getItem('exam-dark');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var isDark = saved !== null ? saved === '1' : prefersDark;
+  setDark(isDark);
+  darkToggle.addEventListener('click', function() {
+    isDark = !html.classList.contains('dark');
+    setDark(isDark);
+  });
+
+  // ========================= DATA =========================
+  var totalQuestions = 3;
+  var correctAnswers = { '1': 'b', '2': 'c', '3': 'b' };
+  var gradedQuestions = { '1': false, '2': false, '3': false };
+  var answeredQuestions = { '1': false, '2': false, '3': false };
+
+  var commentsData = {
+    '1': [
+      { author: 'Jane', text: 'Lambda is serverless compute &mdash; EC2 requires managing instances.' },
+      { author: 'Alice', text: 'Agreed, B is the correct answer.' }
+    ],
+    '2': [
+      { author: 'Mark', text: 'IAM is Identity and Access Management. KMS is for encryption keys.' }
+    ],
+    '3': [
+      { author: 'Ola', text: 'S3 = Simple Storage Service. 99.999999999% durability.' },
+      { author: 'Tom', text: 'EBS is block storage for EC2, EFS is NFS. S3 is object storage.' }
+    ]
+  };
+
+  // ========================= DOM REFS =========================
+  var progressFill = document.getElementById('progressFill');
+  var progressText = document.getElementById('progressText');
+  var searchInput = document.getElementById('searchInput');
+  var submitBtn = document.getElementById('submitBtn');
+  var resetAllBtn = document.getElementById('resetAllBtn');
+  var questionCards = document.querySelectorAll('.question-card');
+
+  // Modals
+  var commentsModal = document.getElementById('commentsModal');
+  var commentsModalTitle = document.getElementById('commentsModalTitle');
+  var commentsList = document.getElementById('commentsList');
+  var closeCommentsModal = document.getElementById('closeCommentsModal');
+
+  var resultModal = document.getElementById('resultModal');
+  var resultPercentage = document.getElementById('resultPercentage');
+  var resultFraction = document.getElementById('resultFraction');
+  var closeResultModal = document.getElementById('closeResultModal');
+
+  var zoomModal = document.getElementById('zoomModal');
+  var zoomImage = document.getElementById('zoomImage');
+  var closeZoomModal = document.getElementById('closeZoomModal');
+
+  // ========================= PROGRESS BAR =========================
+  function updateProgress() {
+    var answered = 0;
+    for (var q = 1; q <= totalQuestions; q++) {
+      if (answeredQuestions[q]) answered++;
+    }
+    var pct = totalQuestions > 0 ? Math.round(answered / totalQuestions * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = answered + ' / ' + totalQuestions;
+  }
+
+  // Track answered questions on radio change
+  document.addEventListener('change', function(e) {
+    if (e.target.type === 'radio' && e.target.name.match(/^q\d+$/)) {
+      var q = e.target.name.replace('q', '');
+      answeredQuestions[q] = true;
+      updateProgress();
+    }
+  });
+
+  // ========================= HELPERS =========================
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function getSelectedValue(q) {
+    var radio = document.querySelector('input[name="q' + q + '"]:checked');
+    return radio ? radio.value : null;
+  }
+
+  function lockBody() { document.body.style.overflow = 'hidden'; }
+  function unlockBody() { document.body.style.overflow = ''; }
+
+  // ========================= FEEDBACK (Peek / Submit) =========================
+  function applyFeedback(q) {
+    var correctVal = correctAnswers[q];
+    var selectedVal = getSelectedValue(q);
+    var labels = document.querySelectorAll('label.answer-radio[data-question="' + q + '"]');
+
+    labels.forEach(function(label) {
+      var answerVal = label.getAttribute('data-answer');
+      var radio = label.querySelector('input[type="radio"]');
+      radio.disabled = true;
+
+      // Remove hover/has-checked dynamic states by clearing inline and adding classes
+      if (answerVal === correctVal) {
+        label.classList.add('answer-correct');
+      } else if (selectedVal !== null && answerVal === selectedVal) {
+        label.classList.add('answer-incorrect');
+      } else {
+        label.classList.add('answer-dimmed');
+      }
+    });
+  }
+
+  function showResultBadge(q, isCorrect) {
+    var badge = document.querySelector('.q-result-badge[data-question="' + q + '"]');
+    if (!badge) return;
+    badge.classList.remove('hidden');
+    if (isCorrect) {
+      badge.textContent = '\u2713 Correct!';
+      badge.style.color = 'var(--primary)';
+      badge.style.border = '1px solid var(--primary)';
+      badge.style.background = 'color-mix(in oklch, var(--primary) 12%, transparent)';
+    } else {
+      badge.textContent = '\u2717 Incorrect!';
+      badge.style.color = 'var(--destructive)';
+      badge.style.border = '1px solid var(--destructive)';
+      badge.style.background = 'color-mix(in oklch, var(--destructive) 12%, transparent)';
+    }
+  }
+
+  function hideResultBadge(q) {
+    var badge = document.querySelector('.q-result-badge[data-question="' + q + '"]');
+    if (badge) {
+      badge.classList.add('hidden');
+      badge.style.color = '';
+      badge.style.border = '';
+      badge.style.background = '';
+    }
+  }
+
+  function markPeekButtonGraded(q) {
+    var peekBtn = document.querySelector('.peek-btn[data-question="' + q + '"]');
+    if (peekBtn) peekBtn.classList.add('peeked');
+  }
+
+  function unmarkPeekButton(q) {
+    var peekBtn = document.querySelector('.peek-btn[data-question="' + q + '"]');
+    if (peekBtn) peekBtn.classList.remove('peeked');
+  }
+
+  function clearFeedback(q) {
+    var labels = document.querySelectorAll('label.answer-radio[data-question="' + q + '"]');
+    labels.forEach(function(label) {
+      label.classList.remove('answer-correct', 'answer-incorrect', 'answer-dimmed');
+      var radio = label.querySelector('input[type="radio"]');
+      radio.disabled = false;
+      radio.checked = false;
+    });
+  }
+
+  // ========================= PEEK =========================
+  document.querySelectorAll('.peek-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var q = this.getAttribute('data-question');
+      if (gradedQuestions[q]) return;
+
+      var selected = getSelectedValue(q);
+      if (!selected) {
+        if (!document.querySelector('input[name="q' + q + '"]')) {
+          gradedQuestions[q] = true;
+          markPeekButtonGraded(q);
+          updateProgress();
+          return;
+        }
+        // Shake card
+        var card = document.getElementById('questionCard' + q);
+        if (card) {
+          card.style.borderColor = 'var(--destructive)';
+          card.classList.add('shake');
+          setTimeout(function() {
+            card.classList.remove('shake');
+            card.style.borderColor = '';
+          }, 500);
+        }
+        return;
+      }
+
+      var isCorrect = selected === correctAnswers[q];
+      gradedQuestions[q] = true;
+      applyFeedback(q);
+      showResultBadge(q, isCorrect);
+      markPeekButtonGraded(q);
+      updateProgress();
+    });
+  });
+
+  // ========================= SUBMIT =========================
+  submitBtn.addEventListener('click', function() {
+    // Check all have at least an answer selected (either via peek or fresh)
+    var allHaveAnswer = true;
+    for (var q = 1; q <= totalQuestions; q++) {
+      if (!gradedQuestions[q] && !getSelectedValue(q)) {
+        if (!document.querySelector('input[name="q' + q + '"]')) continue;
+        allHaveAnswer = false;
+        break;
+      }
+    }
+    if (!allHaveAnswer) {
+      // Flash progress text
+      var origText = progressText.textContent;
+      progressText.textContent = 'Answer all questions!';
+      progressText.style.color = 'var(--destructive)';
+      setTimeout(function() {
+        progressText.textContent = origText;
+        progressText.style.color = '';
+        updateProgress();
+      }, 2000);
+      return;
+    }
+
+    // Evaluate all ungraded questions
+    var correctCount = 0;
+    for (var q = 1; q <= totalQuestions; q++) {
+      if (!gradedQuestions[q]) {
+        var selected = getSelectedValue(q);
+        if (selected) {
+          var isCorrect = selected === correctAnswers[q];
+          gradedQuestions[q] = true;
+          applyFeedback(q);
+          showResultBadge(q, isCorrect);
+          markPeekButtonGraded(q);
+        }
+      }
+    }
+
+    // Count total correct across all graded
+    for (var qq = 1; qq <= totalQuestions; qq++) {
+      if (gradedQuestions[qq]) {
+        var sel = getSelectedValue(qq);
+        if (sel === correctAnswers[qq]) correctCount++;
+      }
+    }
+
+    updateProgress();
+
+    // Show result modal
+    var pct = totalQuestions > 0 ? Math.round(correctCount / totalQuestions * 1000) / 10 : 0;
+    resultPercentage.textContent = pct + '%';
+    resultFraction.textContent = correctCount + ' / ' + totalQuestions;
+    resultModal.classList.remove('hidden');
+    lockBody();
+  });
+
+  // ========================= RESULT MODAL CLOSE =========================
+  closeResultModal.addEventListener('click', function() {
+    resultModal.classList.add('hidden');
+    unlockBody();
+  });
+  resultModal.addEventListener('click', function(e) {
+    if (e.target === resultModal) {
+      resultModal.classList.add('hidden');
+      unlockBody();
+    }
+  });
+
+  // ========================= RESET SINGLE QUESTION =========================
+  document.querySelectorAll('.reset-question-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var q = this.getAttribute('data-question');
+      clearFeedback(q);
+      hideResultBadge(q);
+      unmarkPeekButton(q);
+      gradedQuestions[q] = false;
+      answeredQuestions[q] = false;
+      updateProgress();
+    });
+  });
+
+  // ========================= RESET ALL =========================
+  resetAllBtn.addEventListener('click', function() {
+    for (var q = 1; q <= totalQuestions; q++) {
+      clearFeedback(q);
+      hideResultBadge(q);
+      unmarkPeekButton(q);
+      gradedQuestions[q] = false;
+      answeredQuestions[q] = false;
+    }
+    updateProgress();
+  });
+
+  // ========================= SEARCH =========================
+  searchInput.addEventListener('input', function() {
+    var query = this.value.toLowerCase().trim();
+    questionCards.forEach(function(card) {
+      var text = card.textContent.toLowerCase();
+      if (query === '' || text.indexOf(query) !== -1) {
+        card.classList.remove('hidden-by-search');
+      } else {
+        card.classList.add('hidden-by-search');
+      }
+    });
+  });
+
+  // ========================= COMMENTS MODAL =========================
+  function renderComments(q) {
+    commentsList.innerHTML = '';
+    var comments = commentsData[q] || [];
+    if (comments.length === 0) {
+      commentsList.innerHTML = '<p class="text-xs text-[var(--muted-foreground)] py-3 text-center">No comments yet.</p>';
+      return;
+    }
+    comments.forEach(function(c) {
+      var div = document.createElement('div');
+      div.className = 'rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] p-3';
+      var answerHtml = c.answer ? ' <span style="color:var(--primary)">[' + escHtml(c.answer) + ']</span>' : '';
+      div.innerHTML = '<p class="text-xs font-semibold text-[var(--accent-foreground)]">' + escHtml(c.author) + answerHtml + '</p><p class="text-xs text-[var(--muted-foreground)] mt-1">' + escHtml(c.text) + '</p>';
+      commentsList.appendChild(div);
+    });
+  }
+
+  function openCommentsModal(q) {
+    commentsModalTitle.textContent = 'Comments \u2013 Question ' + q;
+    renderComments(q);
+    commentsModal.classList.remove('hidden');
+    lockBody();
+  }
+
+  function closeCommentsModalFn() {
+    commentsModal.classList.add('hidden');
+    unlockBody();
+  }
+
+  closeCommentsModal.addEventListener('click', closeCommentsModalFn);
+  commentsModal.addEventListener('click', function(e) {
+    if (e.target === commentsModal) closeCommentsModalFn();
+  });
+
+  document.querySelectorAll('.comment-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      openCommentsModal(this.getAttribute('data-question'));
+    });
+  });
+
+  // ========================= SOURCE BUTTON =========================
+  document.querySelectorAll('.source-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var url = this.getAttribute('data-url');
+      if (url) window.open(url, '_blank', 'noopener');
+    });
+  });
+
+  // ========================= IMAGE ZOOM MODAL =========================
+  function openZoomModal(fullSrc) {
+    zoomImage.src = fullSrc;
+    zoomModal.classList.remove('hidden');
+    lockBody();
+  }
+
+  function closeZoomModalFn() {
+    zoomModal.classList.add('hidden');
+    unlockBody();
+  }
+
+  closeZoomModal.addEventListener('click', closeZoomModalFn);
+  zoomModal.addEventListener('click', function(e) {
+    if (e.target === zoomModal) closeZoomModalFn();
+  });
+  zoomImage.addEventListener('click', closeZoomModalFn);
+
+  document.querySelectorAll('.question-image').forEach(function(img) {
+    img.addEventListener('click', function() {
+      openZoomModal(this.getAttribute('data-full'));
+    });
+  });
+
+  // ========================= OPTION / ANSWER IMAGE ZOOM =========================
+  document.addEventListener('click', function(e) {
+    var img = e.target.closest('.opt-image');
+    if (!img && e.target.closest('.answer-block')) {
+      img = e.target.closest('img');
+    }
+    if (img) {
+      e.stopPropagation();
+      openZoomModal(img.src);
+    }
+  });
+
+  // ========================= KEYBOARD =========================
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (!commentsModal.classList.contains('hidden')) closeCommentsModalFn();
+      if (!resultModal.classList.contains('hidden')) {
+        resultModal.classList.add('hidden');
+        unlockBody();
+      }
+      if (!zoomModal.classList.contains('hidden')) closeZoomModalFn();
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
