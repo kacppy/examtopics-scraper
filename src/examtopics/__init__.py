@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -19,6 +20,7 @@ REQUESTS_PER_SEC = 2.0
 MAX_RETRIES = 3
 INITIAL_BACKOFF = 1
 BACKOFF_FACTOR = 2
+PAGE_SIZE = 100
 
 
 def _get_template_path():
@@ -563,8 +565,9 @@ def _build_question_cards(data_list):
         link = data.get("question_link", "")
         link_escaped = link.replace("&", "&amp;").replace('"', "&quot;")
 
+        page_num = ((q_num - 1) // PAGE_SIZE) + 1
         cards.append(f'''    <!-- Question {q_num} -->
-    <div id="questionCard{q_num}" class="question-card rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm" data-question="{q_num}" style="content-visibility:auto">
+    <div id="questionCard{q_num}" class="question-card rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm" data-question="{q_num}" data-page="{page_num}" style="content-visibility:auto">
       <div class="p-5 space-y-4">
         <div class="flex items-start justify-between gap-2">
           <div>
@@ -602,6 +605,7 @@ def _build_question_cards(data_list):
 
 def _replace_js_data(template, data_list):
     total = len(data_list)
+    page_count = math.ceil(total / PAGE_SIZE) if total else 1
 
     correct_parts = []
     graded_parts = []
@@ -638,6 +642,9 @@ def _replace_js_data(template, data_list):
         "  var answeredQuestions = { '1': false, '2': false, '3': false };",
         "  var answeredQuestions = { " + ", ".join(answered_parts) + " };"
     )
+    template = template.replace('var pageSize = 100;', f'var pageSize = {PAGE_SIZE};')
+    template = template.replace('var pageCount = 1;', f'var pageCount = {page_count};')
+    template = template.replace('var currentPage = 1;', 'var currentPage = 1;')
 
     start = template.find('var commentsData = {')
     end = template.find('  };', start)

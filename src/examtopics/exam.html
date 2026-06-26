@@ -245,6 +245,19 @@ body { background-color: var(--background); color: var(--foreground); }
         class="flex h-10 w-full rounded-[var(--radius)] border border-[var(--input)] bg-background pl-10 pr-3 py-2 text-sm ring-offset-background placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
       >
     </div>
+
+    <!-- Row 4: page navigation -->
+    <div id="pageNav" class="flex items-center justify-between gap-2 pt-2">
+      <button id="pagePrev" type="button" class="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-9 px-3 text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-40 disabled:pointer-events-none">
+        &#8249; Prev
+      </button>
+      <div id="pageLabel" class="text-xs font-medium text-[var(--muted-foreground)] tabular-nums">
+        Page 1 of 1 (1&ndash;3)
+      </div>
+      <button id="pageNext" type="button" class="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] h-9 px-3 text-sm font-medium hover:bg-[var(--accent)] transition-colors disabled:opacity-40 disabled:pointer-events-none">
+        Next &#8250;
+      </button>
+    </div>
   </div>
 </div>
 
@@ -507,6 +520,9 @@ body { background-color: var(--background); color: var(--foreground); }
   var correctAnswers = { '1': 'b', '2': 'c', '3': 'b' };
   var gradedQuestions = { '1': false, '2': false, '3': false };
   var answeredQuestions = { '1': false, '2': false, '3': false };
+  var pageSize = 100;
+  var pageCount = 1;
+  var currentPage = 1;
 
   var commentsData = {
     '1': [
@@ -528,7 +544,10 @@ body { background-color: var(--background); color: var(--foreground); }
   var searchInput = document.getElementById('searchInput');
   var submitBtn = document.getElementById('submitBtn');
   var resetAllBtn = document.getElementById('resetAllBtn');
-  var questionCards = document.querySelectorAll('.question-card');
+  var pageNav = document.getElementById('pageNav');
+  var pagePrev = document.getElementById('pagePrev');
+  var pageNext = document.getElementById('pageNext');
+  var pageLabel = document.getElementById('pageLabel');
 
   // Modals
   var commentsModal = document.getElementById('commentsModal');
@@ -555,6 +574,39 @@ body { background-color: var(--background); color: var(--foreground); }
     progressFill.style.width = pct + '%';
     progressText.textContent = answered + ' / ' + totalQuestions;
   }
+
+  // ========================= PAGE NAV =========================
+  function getPageRange(n) {
+    var start = (n - 1) * pageSize + 1;
+    var end = Math.min(n * pageSize, totalQuestions);
+    return { start: start, end: end };
+  }
+
+  function showPage(n) {
+    if (n < 1 || n > pageCount) return;
+    currentPage = n;
+    var cards = document.querySelectorAll('.question-card');
+    for (var i = 0; i < cards.length; i++) {
+      var p = parseInt(cards[i].getAttribute('data-page'), 10);
+      if (p === n) {
+        cards[i].style.display = '';
+        cards[i].classList.remove('hidden-by-search');
+      } else {
+        cards[i].style.display = 'none';
+      }
+    }
+    var r = getPageRange(n);
+    pageLabel.textContent = 'Page ' + n + ' of ' + pageCount + ' (' + r.start + ' \u2013 ' + r.end + ')';
+    pagePrev.disabled = (n === 1);
+    pageNext.disabled = (n === pageCount);
+  }
+
+  function hidePageNav() {
+    if (pageCount <= 1 && pageNav) pageNav.style.display = 'none';
+  }
+
+  pagePrev.addEventListener('click', function() { showPage(currentPage - 1); window.scrollTo({top: 0, behavior: 'smooth'}); });
+  pageNext.addEventListener('click', function() { showPage(currentPage + 1); window.scrollTo({top: 0, behavior: 'smooth'}); });
 
   // Track answered questions on radio change
   document.addEventListener('change', function(e) {
@@ -684,10 +736,12 @@ body { background-color: var(--background); color: var(--foreground); }
   });
 
   // ========================= SUBMIT =========================
-  submitBtn.addEventListener('click', function() {
-    // Check all have at least an answer selected (either via peek or fresh)
+  function gradePage(n) {
+    var r = getPageRange(n);
+
+    // Verify every question on this page has an answer (or has no input -- image fallback)
     var allHaveAnswer = true;
-    for (var q = 1; q <= totalQuestions; q++) {
+    for (var q = r.start; q <= r.end; q++) {
       if (!gradedQuestions[q] && !getSelectedValue(q)) {
         if (!document.querySelector('input[name="q' + q + '"]')) continue;
         allHaveAnswer = false;
@@ -695,9 +749,8 @@ body { background-color: var(--background); color: var(--foreground); }
       }
     }
     if (!allHaveAnswer) {
-      // Flash progress text
       var origText = progressText.textContent;
-      progressText.textContent = 'Answer all questions!';
+      progressText.textContent = 'Answer all questions on this page!';
       progressText.style.color = 'var(--destructive)';
       setTimeout(function() {
         progressText.textContent = origText;
@@ -707,9 +760,8 @@ body { background-color: var(--background); color: var(--foreground); }
       return;
     }
 
-    // Evaluate all ungraded questions
-    var correctCount = 0;
-    for (var q = 1; q <= totalQuestions; q++) {
+    // Grade ungraded questions on this page
+    for (var q = r.start; q <= r.end; q++) {
       if (!gradedQuestions[q]) {
         var selected = getSelectedValue(q);
         if (selected) {
@@ -722,23 +774,26 @@ body { background-color: var(--background); color: var(--foreground); }
       }
     }
 
-    // Count total correct across all graded
-    for (var qq = 1; qq <= totalQuestions; qq++) {
-      if (gradedQuestions[qq]) {
-        var sel = getSelectedValue(qq);
-        if (sel === correctAnswers[qq]) correctCount++;
+    // Count correct on this page
+    var correctCount = 0;
+    for (var q = r.start; q <= r.end; q++) {
+      if (gradedQuestions[q]) {
+        var sel = getSelectedValue(q);
+        if (sel === correctAnswers[q]) correctCount++;
       }
     }
 
     updateProgress();
 
-    // Show result modal
-    var pct = totalQuestions > 0 ? Math.round(correctCount / totalQuestions * 1000) / 10 : 0;
+    var total = r.end - r.start + 1;
+    var pct = total > 0 ? Math.round(correctCount / total * 1000) / 10 : 0;
     resultPercentage.textContent = pct + '%';
-    resultFraction.textContent = correctCount + ' / ' + totalQuestions;
+    resultFraction.textContent = correctCount + ' / ' + total;
     resultModal.classList.remove('hidden');
     lockBody();
-  });
+  }
+
+  submitBtn.addEventListener('click', function() { gradePage(currentPage); });
 
   // ========================= RESULT MODAL CLOSE =========================
   closeResultModal.addEventListener('click', function() {
@@ -774,20 +829,43 @@ body { background-color: var(--background); color: var(--foreground); }
       gradedQuestions[q] = false;
       answeredQuestions[q] = false;
     }
+    searchInput.value = '';
+    document.querySelectorAll('.question-card').forEach(function(card) {
+      card.classList.remove('hidden-by-search');
+    });
     updateProgress();
+    showPage(1);
   });
 
   // ========================= SEARCH =========================
   searchInput.addEventListener('input', function() {
     var query = this.value.toLowerCase().trim();
-    questionCards.forEach(function(card) {
-      var text = card.textContent.toLowerCase();
-      if (query === '' || text.indexOf(query) !== -1) {
+    if (query === '') {
+      // Empty search: clear search filter on all cards, then restore current page view
+      document.querySelectorAll('.question-card').forEach(function(card) {
         card.classList.remove('hidden-by-search');
+      });
+      showPage(currentPage);
+      return;
+    }
+    // Toggle search visibility on all cards; first match's page drives navigation.
+    var firstMatchPage = null;
+    var cards = document.querySelectorAll('.question-card');
+    cards.forEach(function(card) {
+      var text = card.textContent.toLowerCase();
+      if (text.indexOf(query) !== -1) {
+        card.classList.remove('hidden-by-search');
+        if (firstMatchPage === null) {
+          firstMatchPage = parseInt(card.getAttribute('data-page'), 10);
+        }
       } else {
         card.classList.add('hidden-by-search');
       }
     });
+    // If the first match is on a different page, navigate there
+    if (firstMatchPage !== null && firstMatchPage !== currentPage) {
+      showPage(firstMatchPage);
+    }
   });
 
   // ========================= COMMENTS MODAL =========================
@@ -885,6 +963,10 @@ body { background-color: var(--background); color: var(--foreground); }
       if (!zoomModal.classList.contains('hidden')) closeZoomModalFn();
     }
   });
+
+  // ========================= INIT =========================
+  showPage(1);
+  hidePageNav();
 
 })();
 </script>
