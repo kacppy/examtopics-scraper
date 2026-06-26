@@ -16,40 +16,33 @@ Supported providers: Amazon AWS, Microsoft, Google, Cisco, CompTIA, ISC2, and an
 
 ## Requirements
 
-- Python 3.8+
-- `requests`
-- `beautifulsoup4`
+- Python 3.11+
+- [`uv`](https://docs.astral.sh/uv/) (Astral's Python package manager)
 
 ## Installation
-
-### From source (recommended)
 
 ```bash
 git clone https://github.com/your-username/examtopics-downloader.git
 cd examtopics-downloader
-pip install .
+uv sync
 ```
 
-After installation, the `examtopics` command is available globally:
+`uv sync` creates a `.venv/` and installs the package in editable mode along with all runtime dependencies (`requests`, `beautifulsoup4`). After that, run the CLI via `uv run`:
 
 ```bash
+uv run examtopics --help
+```
+
+### Install the CLI globally (no repo needed at runtime)
+
+If you just want the `examtopics` command on your `PATH` (so you can run it from anywhere, without `uv run` or activating a venv), use `uv tool install` from the cloned repo:
+
+```bash
+uv tool install .
 examtopics --help
 ```
 
-### Editable / development install
-
-```bash
-pip install -e .
-```
-
-Changes to the source code take effect immediately without reinstalling.
-
-### Direct usage (no install)
-
-```bash
-pip install requests beautifulsoup4
-python -m examtopics --help
-```
+This builds a dedicated isolated environment for the tool and exposes `examtopics` in `~/.local/bin/` (added to `PATH` automatically on most setups). To upgrade after pulling new changes, re-run `uv tool install --reinstall .`. To uninstall: `uv tool uninstall examtopics-downloader`.
 
 ## Usage
 
@@ -87,14 +80,14 @@ examtopics -p amazon -s SAA-C03 -o exam_output -t txt
 
 | Flag | Description |
 |------|-------------|
-| `url` | (positional) ExamTopics page URL. Omit to use `-p`/`-s` instead. |
-| `-p`, `--provider` | Provider slug: `amazon`, `microsoft`, `google`, etc. |
-| `-s`, `--search` | String to filter discussions (e.g. exam code `SAA-C03`). |
-| `-o`, `--output` | Output file base name (default: exam slug from URL). |
-| `-c`, `--comments` | Include user comments from discussion threads. |
-| `-t`, `--type` | Extra output format: `html` (default), `md` (keep markdown), `txt` (plain text). |
-| `-n`, `--pages` | Limit discussion listing pages to scan (speeds up large exams). |
-| `-h`, `--help` | Show full help message with examples. |
+| `url` | (positional) ExamTopics page URL -- discussion, exam view, or exam list. Omit to use `-p`/`-s`. |
+| `-p`, `--provider` | Provider slug, e.g. `amazon`, `microsoft`, `google`. Use with `-s`. |
+| `-s`, `--search` | Filter discussions by substring (e.g. exam code `SAA-C03`). |
+| `-n`, `--pages` | Max discussion listing pages to scan (default: all). |
+| `-o`, `--output` | Output file base name (default: exam slug from URL, or `examtopics_output`). |
+| `-c`, `--comments` | Include user comments from the discussion thread (default: off). |
+| `-t`, `--type` | Extra output format alongside HTML: `md` (keep markdown), `txt` (plain text). Default: `html`. |
+| `-h`, `--help` | Show this help message. |
 
 ## Output
 

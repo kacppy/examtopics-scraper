@@ -48,9 +48,11 @@ def fetch_url(url, session=None):
                                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
             if resp.status_code == 200:
                 return resp
-            if resp.status_code != 503:
-                print(f"  HTTP {resp.status_code} for {url}", file=sys.stderr)
-                return None
+            if 500 <= resp.status_code < 600:
+                print(f"  HTTP {resp.status_code} for {url}, will retry", file=sys.stderr)
+                continue
+            print(f"  HTTP {resp.status_code} for {url}", file=sys.stderr)
+            return None
         except requests.RequestException as e:
             print(f"  Request failed (attempt {attempt}): {e}", file=sys.stderr)
     print(f"  Exhausted retries for {url}", file=sys.stderr)
@@ -735,28 +737,34 @@ def scrape_exam_via_discussions(provider, exam_slug, session, limit_pages=None):
 
 DESCRIPTION = """
 ExamTopics Downloader -- scrapes exam questions from examtopics.com
-and generates an interactive HTML page for self-study.
+and produces an interactive HTML study page.
 
-Operation modes (auto-detected from URL):
+Output files (written to CWD unless -o is set):
+  <base>.html   interactive study page (always)
+  <base>.md     kept when -t md
+  <base>.txt    added when -t txt
 
-  1. Single question:      https://www.examtopics.com/discussions/<provider>/view/<id>-...
-  2. Discussion listing:   https://www.examtopics.com/discussions/<provider>/
-  3. Exam view:            https://www.examtopics.com/exams/<provider>/<exam-slug>/view/<page>/
-  4. Exam listing:         https://www.examtopics.com/exams/<provider>/<exam-slug>/
-  5. By provider name:     -p PROVIDER [-s FILTER]
-
-Output is always an interactive HTML file (requires exam.html template).
-Optionally also generate .md or .txt alongside HTML (-t md | -t txt).
+Modes (auto-detected from URL, or use -p/-s):
+  /discussions/<provider>/view/<id>-...   single question
+  /discussions/<provider>/                all discussions
+  /exams/<provider>/<slug>/view/<n>/      exam view
+  /exams/<provider>/<slug>/               exam listing
+  -p PROVIDER [-s FILTER]                 search by name
 """
 
 EPILOG = """
 Examples:
-  examtopics https://www.examtopics.com/discussions/amazon/view/12345-example-question/
-  examtopics https://www.examtopics.com/discussions/amazon/
-  examtopics https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate-saa-c03/view/1/
-  examtopics -p amazon -s SAA-C03
-  examtopics -p amazon -s SAA-C03 -n 3 -o my-exam
-  examtopics -p amazon -s SAA-C03 -o my-exam -t md -c
+
+  By provider + exam code (most common):
+    examtopics -p amazon -s SAA-C03
+    examtopics -p amazon -s SAA-C03 -n 3 -o my-saa
+
+  By URL:
+    examtopics https://www.examtopics.com/discussions/amazon/
+    examtopics https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate-saa-c03/view/1/
+
+  With comments or extra formats:
+    examtopics -p amazon -s SAA-C03 -c -t md
 """
 
 
@@ -766,45 +774,40 @@ def main():
         epilog=EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
+    input_group = parser.add_argument_group("Input")
+    input_group.add_argument(
         "url", nargs="?",
-        help="URL to an ExamTopics page (discussion, exam view, exam list). "
-             "If omitted, use -p/--provider to search by provider name instead."
+        help="ExamTopics page URL (discussion, exam view, or exam list). Omit to use -p/-s."
     )
-    parser.add_argument(
+    input_group.add_argument(
         "-p", "--provider",
-        help="Exam provider slug (e.g. amazon, microsoft, google). "
-             "Used together with -s to search discussions without a full URL."
+        help="Provider slug, e.g. amazon, microsoft, google. Use with -s."
     )
-    parser.add_argument(
+    input_group.add_argument(
         "-s", "--search",
-        help="String to filter discussions by (matched against link text and URL). "
-             "Typically the exam code (e.g. SAA-C03, AZ-104)."
+        help="Filter discussions by substring (e.g. exam code SAA-C03)."
     )
-    parser.add_argument(
-        "-o", "--output",
-        default=None,
-        help="Output file base name (without extension). "
-             "Defaults to the exam slug from the URL or 'examtopics_output'."
-    )
-    parser.add_argument(
-        "-c", "--comments",
-        action="store_true",
-        help="Include user comments from the discussion threads in the output."
-    )
-    parser.add_argument(
-        "-t", "--type",
-        default="html", choices=["html", "md", "txt"],
-        help="Additional output format alongside HTML. "
-             "'html' (default) -- only the interactive HTML. "
-             "'md' -- keep the Markdown file. "
-             "'txt' -- plain-text version (drops formatting)."
-    )
-    parser.add_argument(
+    scraping_group = parser.add_argument_group("Scraping")
+    scraping_group.add_argument(
         "-n", "--pages",
         type=int,
-        help="Limit the number of discussion listing pages to scan. "
-             "Useful for large exams to speed up the initial scrape."
+        help="Max discussion listing pages to scan (default: all)."
+    )
+    output_group = parser.add_argument_group("Output")
+    output_group.add_argument(
+        "-o", "--output",
+        default=None,
+        help="Output file base name (default: exam slug from URL, or 'examtopics_output')."
+    )
+    output_group.add_argument(
+        "-c", "--comments",
+        action="store_true",
+        help="Include user comments from the discussion thread (default: off)."
+    )
+    output_group.add_argument(
+        "-t", "--type",
+        default="html", choices=["html", "md", "txt"],
+        help="Extra output format alongside HTML: 'md' keeps markdown, 'txt' is plain text (default: html)."
     )
     args = parser.parse_args()
 
